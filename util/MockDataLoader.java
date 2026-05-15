@@ -4,6 +4,7 @@ import model.bundles.Bundle;
 import model.games.Juego;
 import model.reviews.Review;
 import model.users.Desarrollador;
+import model.users.Jugador;
 import repository.DataStore;
 
 public class MockDataLoader {
@@ -59,5 +60,15 @@ public class MockDataLoader {
         DataStore.STORE_ITEMS.add(game2);
         DataStore.STORE_ITEMS.add(game3);
         DataStore.STORE_ITEMS.add(starterBundle);
+
+        Jugador player1 = new Jugador("ryou", "ryou@mail.com", 200);
+        player1.getLibreria().addItem(game3); // ya tiene un juego en su librería
+
+        Jugador player2 = new Jugador("maria", "maria@mail.com", 120);
+        player2.getLibreria().addItem(game1); // ya tiene Cyber Samurai
+
+        DataStore.PLAYERS.add(player1);
+        DataStore.PLAYERS.add(player2);
+        DataStore.currentPlayer = player1;
     }
 }
