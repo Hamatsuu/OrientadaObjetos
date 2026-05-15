@@ -2,6 +2,7 @@ package util;
 
 import model.bundles.Bundle;
 import model.games.Juego;
+import model.reviews.Review;
 import model.users.Desarrollador;
 import repository.DataStore;
 
@@ -44,6 +45,9 @@ public class MockDataLoader {
                 0.25
         );
 
+        game1.addReview(new Review("Juanitogaming777", "¡El mejor juego de acción!", 10));
+        
+        game1.addReview(new Review("john markiplier iron lung", "Un poco corto, pero increíble.", 8));
         starterBundle.addJuego(game1);
         starterBundle.addJuego(game2);
 

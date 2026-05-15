@@ -1,15 +1,15 @@
 package ui.panels;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import javax.swing.*;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-
+import model.games.Juego;
+import model.reviews.Review;
 import model.store.ArticuloComprable;
 import repository.DataStore;
 import service.StoreService;
@@ -17,55 +17,113 @@ import service.StoreService;
 public class StorePanel extends JPanel {
 
     private JList<ArticuloComprable> list;
+    private StoreService service;
+    private JLabel balanceLabel; // Etiqueta para el saldo
 
     public StorePanel() {
-
         setLayout(new BorderLayout());
+        service = new StoreService();
 
-        DefaultListModel<ArticuloComprable> model =
-                new DefaultListModel<>();
-
+        DefaultListModel<ArticuloComprable> model = new DefaultListModel<>();
         for(ArticuloComprable item : DataStore.STORE_ITEMS) {
             model.addElement(item);
         }
 
         list = new JList<>(model);
+        list.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    ArticuloComprable selected = list.getSelectedValue();
+                    if (selected != null) {
+                        abrirDetallesTienda(selected);
+                    }
+                }
+            }
+        });
 
-        JButton buyButton = new JButton("Comprar");
+        // Panel de cabecera para el título y el saldo
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        
+        JLabel titleLabel = new JLabel("Tienda Virtual");
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
+        
+        balanceLabel = new JLabel();
+        refreshBalance(); // Inicializamos el texto del saldo
+        balanceLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
+        balanceLabel.setForeground(new Color(46, 139, 87)); // Color verde tipo "dinero"
 
-        buyButton.addActionListener(e -> purchaseSelected());
+        headerPanel.add(titleLabel, BorderLayout.WEST);
+        headerPanel.add(balanceLabel, BorderLayout.EAST);
 
-        add(new JLabel("Tienda"), BorderLayout.NORTH);
+        add(headerPanel, BorderLayout.NORTH);
         add(new JScrollPane(list), BorderLayout.CENTER);
-        add(buyButton, BorderLayout.SOUTH);
     }
 
-    private void purchaseSelected() {
+    // Método para actualizar visualmente el dinero del jugador
+    public void refreshBalance() {
+        balanceLabel.setText("Tu Saldo: $" + String.format("%.2f", DataStore.currentPlayer.getWallet()));
+    }
 
-        ArticuloComprable selected = list.getSelectedValue();
+    private void abrirDetallesTienda(ArticuloComprable item) {
+        JDialog dialog = new JDialog((JFrame) SwingUtilities.getWindowAncestor(this), "Detalles del Producto", true);
+        dialog.setSize(450, 500); // Un poco más alto para las reseñas
+        dialog.setLocationRelativeTo(this);
+        dialog.setLayout(new BorderLayout(10, 10));
 
-        if(selected == null) {
-            return;
-        }
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+        infoPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        
+        infoPanel.add(new JLabel("<html><h2 style='color:#333;'>" + item.getNombre() + "</h2></html>"));
+        infoPanel.add(new JLabel("Precio: $" + String.format("%.2f", item.getPrecio())));
+        infoPanel.add(Box.createVerticalStrut(15));
 
-        StoreService service = new StoreService();
-
-        try {
-            // Intentamos hacer la compra
-            service.purchase(DataStore.currentPlayer, selected);
+        if (item instanceof Juego) {
+            Juego juego = (Juego) item;
+            infoPanel.add(new JLabel("<html><b>Género:</b> " + juego.getGenero() + "</html>"));
+            infoPanel.add(Box.createVerticalStrut(5));
+            infoPanel.add(new JLabel("<html><p width='300'><b>Descripción:</b> " + juego.getDescripcion() + "</p></html>"));
             
-            // Si no hay errores, mostramos mensaje de éxito
-            JOptionPane.showMessageDialog(this,
-                    "¡Compra realizada con éxito!", 
-                    "Compra", 
-                    JOptionPane.INFORMATION_MESSAGE);
-
-        } catch (Exception ex) {
-            // Si el servicio lanza un error, lo atrapamos y lo mostramos en la UI
-            JOptionPane.showMessageDialog(this,
-                    ex.getMessage(), 
-                    "Error en la compra", 
-                    JOptionPane.WARNING_MESSAGE);
+            // SECCIÓN DE RESEÑAS
+            infoPanel.add(Box.createVerticalStrut(20));
+            infoPanel.add(new JLabel("<html><b style='font-size:12px; color:#555;'>RESEÑAS DE LA COMUNIDAD:</b></html>"));
+            infoPanel.add(new JSeparator());
+            
+            if (juego.getReviews().isEmpty()) {
+                infoPanel.add(new JLabel("   Nadie ha escrito una reseña aún."));
+            } else {
+                for (Review r : juego.getReviews()) {
+                    // Usamos el toString() que ya tenías en Review.java
+                    JLabel reviewLabel = new JLabel("<html><p width='350' style='margin-bottom:5px;'>• " + r.toString() + "</p></html>");
+                    infoPanel.add(reviewLabel);
+                }
+            }
+        } 
+        else if (item instanceof model.bundles.Bundle) {
+            model.bundles.Bundle bundle = (model.bundles.Bundle) item;
+            infoPanel.add(new JLabel("<html><b>Contenido del Bundle:</b></html>"));
+            for (Juego j : bundle.getJuegos()) {
+                infoPanel.add(new JLabel(" • " + j.getNombre()));
+            }
         }
+
+        JButton buyButton = new JButton("Confirmar Compra");
+        buyButton.addActionListener(e -> {
+            try {
+                service.purchase(DataStore.currentPlayer, item);
+                refreshBalance(); // ¡Actualizamos el saldo en la tienda!
+                JOptionPane.showMessageDialog(dialog, "¡Gracias por tu compra!");
+                dialog.dispose();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(dialog, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        dialog.add(new JScrollPane(infoPanel), BorderLayout.CENTER);
+        dialog.add(buyButton, BorderLayout.SOUTH);
+        dialog.setVisible(true);
     }
 }
+

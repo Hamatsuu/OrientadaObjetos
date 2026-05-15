@@ -1,5 +1,3 @@
-
-
 package model.games;
 
 import java.util.ArrayList;
@@ -8,8 +6,10 @@ import java.util.List;
 import model.reviews.Review;
 import model.store.ArticuloComprable;
 import model.users.Desarrollador;
+import observer.Observable; // Agregamos el import
 
-public class Juego implements ArticuloComprable {
+// Hereda de Observable e implementa ArticuloComprable
+public class Juego extends Observable implements ArticuloComprable {
 
     private String nombre;
     private String descripcion;
@@ -27,6 +27,7 @@ public class Juego implements ArticuloComprable {
             String genero,
             Desarrollador desarrollador
     ) {
+        super(); // Llama al constructor de Observable para la lista de observadores
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.precio = precio;
@@ -34,6 +35,12 @@ public class Juego implements ArticuloComprable {
         this.desarrollador = desarrollador;
 
         this.reviews = new ArrayList<>();
+    }
+
+    // Método añadido del UML para disparar la notificación
+    public void aplicarDescuento(double nuevoPrecio) {
+        this.precio = nuevoPrecio;
+        notifyObservers("¡El juego " + nombre + " ahora cuesta $" + precio + "!");
     }
 
     @Override
@@ -71,3 +78,4 @@ public class Juego implements ArticuloComprable {
         return nombre + " - $" + precio;
     }
 }
+
