@@ -7,7 +7,8 @@ import model.store.ArticuloComprable;
 import model.users.Jugador;
 
 public class DataStore {
-
+ 
+    
     public static List<ArticuloComprable> STORE_ITEMS = new ArrayList<>();
 
     public static List<Jugador> PLAYERS = new ArrayList<>();
