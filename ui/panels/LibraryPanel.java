@@ -1,11 +1,10 @@
 package ui.panels;
 
 import java.awt.BorderLayout;
-import java.awt.GridLayout;
+import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.*;
-
 import model.games.Juego;
 import model.store.ArticuloComprable;
 import repository.DataStore;
@@ -20,6 +19,16 @@ public class LibraryPanel extends JPanel {
 
         model = new DefaultListModel<>();
         list = new JList<>(model);
+        list.setCellRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof ArticuloComprable) {
+                    label.setText(((ArticuloComprable) value).getNombre());
+                }
+                return label;
+            }
+        });
 
         // Agregamos el listener para lanzar el juego con doble clic
         list.addMouseListener(new MouseAdapter() {
