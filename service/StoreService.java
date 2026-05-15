@@ -1,6 +1,7 @@
 package service;
 
 import model.bundles.Bundle;
+import model.games.Juego;
 import model.store.ArticuloComprable;
 import model.users.Jugador;
 
@@ -30,7 +31,16 @@ public class StoreService {
         }
 
         // 3. Agregar a la librería si todo salió bien
-        jugador.getLibreria().addItem(item);
+        if (item instanceof Bundle) {
+            Bundle bundle = (Bundle) item;
+            for (Juego juego : bundle.getJuegos()) {
+                if (!jugador.getLibreria().getItems().contains(juego)) {
+                    jugador.getLibreria().addItem(juego);
+                }
+            }
+        } else {
+            jugador.getLibreria().addItem(item);
+        }
     }
 }
 
