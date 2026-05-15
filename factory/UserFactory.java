@@ -3,6 +3,7 @@ package factory;
 import model.users.Desarrollador;
 import model.users.Jugador;
 import model.users.Usuario;
+import repository.DataStore;
 
 public class UserFactory {
 
@@ -11,6 +12,10 @@ public class UserFactory {
             String username,
             String email
     ) {
+
+        if (DataStore.isUsernameTaken(username)) {
+            throw new IllegalArgumentException("Nombre de usuario ya existe: " + username);
+        }
 
         switch(type.toLowerCase()) {
 

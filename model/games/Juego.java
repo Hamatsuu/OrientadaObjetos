@@ -6,10 +6,8 @@ import java.util.List;
 import model.reviews.Review;
 import model.store.ArticuloComprable;
 import model.users.Desarrollador;
-import observer.Observable; // Agregamos el import
 
-// Hereda de Observable e implementa ArticuloComprable
-public class Juego extends Observable implements ArticuloComprable {
+public class Juego implements ArticuloComprable {
 
     private String nombre;
     private String descripcion;
@@ -37,10 +35,9 @@ public class Juego extends Observable implements ArticuloComprable {
         this.reviews = new ArrayList<>();
     }
 
-    // Método añadido del UML para disparar la notificación
+    // Método añadido del UML para cambiar el precio
     public void aplicarDescuento(double nuevoPrecio) {
         this.precio = nuevoPrecio;
-        notifyObservers("¡El juego " + nombre + " ahora cuesta $" + precio + "!");
     }
 
     @Override
@@ -71,6 +68,10 @@ public class Juego extends Observable implements ArticuloComprable {
 
     public void addReview(Review review) {
         reviews.add(review);
+    }
+
+    public boolean removeReviewByAuthor(String author) {
+        return reviews.removeIf(r -> r.getAuthor().equalsIgnoreCase(author));
     }
 
     @Override

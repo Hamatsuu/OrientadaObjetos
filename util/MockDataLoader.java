@@ -67,8 +67,8 @@ public class MockDataLoader {
         Jugador player2 = new Jugador("maria", "maria@mail.com", 120);
         player2.getLibreria().addItem(game1); // ya tiene Cyber Samurai
 
-        DataStore.PLAYERS.add(player1);
-        DataStore.PLAYERS.add(player2);
+        DataStore.addPlayer(player1);
+        DataStore.addPlayer(player2);
         DataStore.currentPlayer = player1;
     }
 }
