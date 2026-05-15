@@ -2,7 +2,6 @@ package repository;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import model.games.Juego;
 import model.store.ArticuloComprable;
 import model.users.Jugador;

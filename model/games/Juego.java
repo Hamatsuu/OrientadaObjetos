@@ -2,7 +2,6 @@ package model.games;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import model.reviews.Review;
 import model.store.ArticuloComprable;
 import model.users.Desarrollador;
