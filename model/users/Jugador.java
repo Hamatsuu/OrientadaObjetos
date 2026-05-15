@@ -1,8 +1,10 @@
 package model.users;
 
 import model.library.Libreria;
+import observer.Observador; // Agregamos el import
 
-public class Jugador extends Usuario {
+// Implementa la interfaz Observador
+public class Jugador extends Usuario implements Observador {
 
     private double wallet;
     private Libreria libreria;
@@ -11,6 +13,12 @@ public class Jugador extends Usuario {
         super(username, email);
         this.wallet = wallet;
         this.libreria = new Libreria();
+    }
+
+    // Cumplimos con el método del UML para recibir la notificación
+    @Override
+    public void update(String mensaje) {
+        System.out.println("🔔 Notificación para " + getUsername() + ": " + mensaje);
     }
 
     public double getWallet() {
@@ -34,3 +42,5 @@ public class Jugador extends Usuario {
         return libreria;
     }
 }
+
+

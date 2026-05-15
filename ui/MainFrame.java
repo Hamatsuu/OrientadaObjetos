@@ -1,4 +1,3 @@
-
 package ui;
 
 import java.awt.BorderLayout;
@@ -22,13 +21,17 @@ public class MainFrame extends JFrame {
         
         tabs.add("Store", new StorePanel());
         tabs.add("Library", libraryPanel);
+        
         tabs.addChangeListener(e -> {
-            if (tabs.getSelectedIndex() == 1) {
+            int index = tabs.getSelectedIndex();
+            if (index == 0) { // StorePanel
+                ((StorePanel) tabs.getComponentAt(0)).refreshBalance();
+            } else if (index == 1) { // LibraryPanel
                 libraryPanel.refresh();
             }
         });
-
         setLayout(new BorderLayout());
         add(tabs, BorderLayout.CENTER);
     }
 }
+
