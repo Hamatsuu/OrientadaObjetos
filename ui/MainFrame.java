@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import model.users.Jugador;
 import repository.DataStore;
+import ui.panels.AdminPanel;
 import ui.panels.LibraryPanel;
 import ui.panels.StorePanel;
 
@@ -53,11 +54,12 @@ public class MainFrame extends JFrame {
 
         tabs.add("Store", storePanel);
         tabs.add("Library", libraryPanel);
+        tabs.add("Admin", new AdminPanel(userModel, userSelector, storePanel, libraryPanel));
         
         tabs.addChangeListener(e -> {
             int index = tabs.getSelectedIndex();
             if (index == 0) { // StorePanel
-                storePanel.refreshBalance();
+                storePanel.refreshStore();
             } else if (index == 1) { // LibraryPanel
                 libraryPanel.refresh();
             }
