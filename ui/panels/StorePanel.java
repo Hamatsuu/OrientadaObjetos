@@ -3,11 +3,10 @@ package ui.panels;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.*;
-
+import model.bundles.Bundle;
 import model.games.Juego;
 import model.reviews.Review;
 import model.store.ArticuloComprable;
@@ -16,16 +15,17 @@ import service.StoreService;
 
 public class StorePanel extends JPanel {
 
+    private DefaultListModel<ArticuloComprable> model;
     private JList<ArticuloComprable> list;
-    private StoreService service;
+    private final StoreService service;
     private JLabel balanceLabel; // Etiqueta para el saldo
 
     public StorePanel() {
         setLayout(new BorderLayout());
         service = new StoreService();
 
-        DefaultListModel<ArticuloComprable> model = new DefaultListModel<>();
-        for(ArticuloComprable item : DataStore.STORE_ITEMS) {
+        model = new DefaultListModel<>();
+        for (ArticuloComprable item : DataStore.STORE_ITEMS) {
             model.addElement(item);
         }
 
@@ -77,7 +77,11 @@ public class StorePanel extends JPanel {
         infoPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         
         infoPanel.add(new JLabel("<html><h2 style='color:#333;'>" + item.getNombre() + "</h2></html>"));
-        infoPanel.add(new JLabel("Precio: $" + String.format("%.2f", item.getPrecio())));
+        double precioActual = item.getPrecio();
+        if (item instanceof Bundle) {
+            precioActual = ((Bundle) item).getPrecioPara(DataStore.currentPlayer);
+        }
+        infoPanel.add(new JLabel("Precio: $" + String.format("%.2f", precioActual)));
         infoPanel.add(Box.createVerticalStrut(15));
 
         if (item instanceof Juego) {
@@ -113,7 +117,7 @@ public class StorePanel extends JPanel {
         buyButton.addActionListener(e -> {
             try {
                 service.purchase(DataStore.currentPlayer, item);
-                refreshBalance(); // ¡Actualizamos el saldo en la tienda!
+                refreshStore(); // ¡Actualizamos el saldo en la tienda!
                 JOptionPane.showMessageDialog(dialog, "¡Gracias por tu compra!");
                 dialog.dispose();
             } catch (Exception ex) {
@@ -124,6 +128,15 @@ public class StorePanel extends JPanel {
         dialog.add(new JScrollPane(infoPanel), BorderLayout.CENTER);
         dialog.add(buyButton, BorderLayout.SOUTH);
         dialog.setVisible(true);
+    }
+
+    public void refreshStore() {
+        model.clear();
+        for (ArticuloComprable item : DataStore.STORE_ITEMS) {
+            model.addElement(item);
+        }
+        list.repaint();
+        refreshBalance();
     }
 }
 

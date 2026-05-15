@@ -24,4 +24,9 @@ public abstract class Usuario {
     public String getEmail() {
         return email;
     }
+
+    @Override
+    public String toString() {
+        return username;
+    }
 }
